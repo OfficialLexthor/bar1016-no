@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from "react"
-import Image from "next/image"
 import { useRealtimeMenu } from "@/hooks/use-realtime-menu"
 import { getNeonColor } from "@/lib/utils/neon-colors"
 import { formatPrice } from "@/lib/utils/format"
@@ -325,13 +324,13 @@ export default function TvMenuPage() {
             <TvClock />
           </div>
           <div className="flex justify-center items-center gap-4 mb-1">
-            <Image
-              src="/logo.png"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.svg"
               alt="1016 Bar"
               width={56}
               height={56}
               className="h-14 w-14 drop-shadow-[0_0_20px_rgba(7,152,232,0.6)]"
-              priority
             />
             <h1 className="text-4xl font-bold text-white tracking-tight">
               <span className="drop-shadow-[0_0_20px_rgba(7,152,232,0.8)]">1016</span>{" "}

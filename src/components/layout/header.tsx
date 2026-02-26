@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { NAV_ITEMS } from "@/lib/utils/constants"
 import { NeonButton } from "@/components/neon/neon-button"
@@ -32,13 +31,13 @@ export function Header() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
             alt="1016 Bar"
             width={40}
             height={40}
             className="h-10 w-10"
-            priority
           />
           <span className="text-xl font-bold tracking-tight">
             <span className="text-neon-cyan neon-glow-cyan">1016</span>{" "}

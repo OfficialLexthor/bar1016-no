@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Image from "next/image"
 import { MapPin, Phone, Mail, Instagram, Facebook, Music } from "lucide-react"
 import { NeonDivider } from "@/components/neon/neon-divider"
 import {
@@ -21,8 +20,9 @@ export function Footer() {
           {/* Column 1: Logo + description */}
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <Image
-                src="/logo.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.svg"
                 alt="1016 Bar"
                 width={36}
                 height={36}

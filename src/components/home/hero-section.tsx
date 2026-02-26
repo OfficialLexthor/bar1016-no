@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -7,13 +6,13 @@ export function HeroSection() {
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center px-4">
       <div className="text-center">
-        <Image
-          src="/logo.png"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.svg"
           alt="1016 Bar"
           width={200}
           height={200}
           className="mx-auto mb-6 drop-shadow-[0_0_40px_rgba(7,152,232,0.4)]"
-          priority
         />
         <h1 className="mb-2 flex flex-col items-center gap-2 font-bold tracking-tight sm:flex-row sm:justify-center sm:gap-6">
           <span
