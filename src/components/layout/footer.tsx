@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { MapPin, Phone, Mail, Instagram, Facebook, Music } from "lucide-react"
 import { NeonDivider } from "@/components/neon/neon-divider"
 import {
@@ -19,12 +20,17 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Column 1: Logo + description */}
           <div className="space-y-4">
-            <Link href="/" className="inline-flex items-center gap-1.5">
-              <span className="text-2xl font-bold text-neon-cyan neon-glow-cyan tracking-tight">
-                1016
-              </span>
-              <span className="text-2xl font-bold text-neon-pink neon-glow-pink tracking-tight">
-                BAR
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <Image
+                src="/logo.png"
+                alt="1016 Bar"
+                width={36}
+                height={36}
+                className="h-9 w-9"
+              />
+              <span className="text-xl font-bold tracking-tight">
+                <span className="text-neon-cyan neon-glow-cyan">1016</span>{" "}
+                <span className="text-neon-pink neon-glow-pink">BAR</span>
               </span>
             </Link>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -6,17 +7,25 @@ export function HeroSection() {
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center px-4">
       <div className="text-center">
+        <Image
+          src="/logo.png"
+          alt="1016 Bar"
+          width={200}
+          height={200}
+          className="mx-auto mb-6 drop-shadow-[0_0_40px_rgba(7,152,232,0.4)]"
+          priority
+        />
         <h1 className="mb-2 flex flex-col items-center gap-2 font-bold tracking-tight sm:flex-row sm:justify-center sm:gap-6">
           <span
             className={cn(
-              "text-8xl text-neon-cyan neon-glow-cyan sm:text-9xl"
+              "text-7xl text-neon-cyan neon-glow-cyan sm:text-8xl"
             )}
           >
             1016
           </span>
           <span
             className={cn(
-              "text-7xl text-neon-pink neon-glow-pink sm:text-8xl"
+              "text-6xl text-neon-pink neon-glow-pink sm:text-7xl"
             )}
           >
             BAR

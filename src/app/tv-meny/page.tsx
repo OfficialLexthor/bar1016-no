@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from "react"
+import Image from "next/image"
 import { useRealtimeMenu } from "@/hooks/use-realtime-menu"
 import { getNeonColor } from "@/lib/utils/neon-colors"
 import { formatPrice } from "@/lib/utils/format"
 import type { MenuCategoryWithItems, NeonColor } from "@/types"
-import { Music, Wine } from "lucide-react"
 
 // Hardcoded fallback menu for when Supabase is not connected
 const FALLBACK_MENU: MenuCategoryWithItems[] = [
@@ -325,14 +325,20 @@ export default function TvMenuPage() {
             <TvClock />
           </div>
           <div className="flex justify-center items-center gap-4 mb-1">
-            <Music className="w-8 h-8 text-neon-cyan drop-shadow-[0_0_20px_rgba(7,152,232,1)]" />
+            <Image
+              src="/logo.png"
+              alt="1016 Bar"
+              width={56}
+              height={56}
+              className="h-14 w-14 drop-shadow-[0_0_20px_rgba(7,152,232,0.6)]"
+              priority
+            />
             <h1 className="text-4xl font-bold text-white tracking-tight">
               <span className="drop-shadow-[0_0_20px_rgba(7,152,232,0.8)]">1016</span>{" "}
               <span className="text-neon-pink drop-shadow-[0_0_20px_rgba(217,60,239,0.8)]">
                 BAR
               </span>
             </h1>
-            <Wine className="w-8 h-8 text-neon-gold drop-shadow-[0_0_20px_rgba(255,199,41,1)]" />
           </div>
           <p className="text-xs text-gray-400 tracking-[0.3em] uppercase">
             Premium Drinks & Cocktails
