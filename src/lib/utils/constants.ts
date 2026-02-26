@@ -11,13 +11,13 @@ export const ADDRESS = {
 }
 
 export const CONTACT = {
-  phone: "+47 69 15 10 16",
+  phone: "+47 972 86 113",
   email: "post@bar1016.no",
 }
 
 export const SOCIAL_LINKS = {
-  instagram: "https://www.instagram.com/1016bar",
-  facebook: "https://www.facebook.com/1016bar",
+  instagram: "https://www.instagram.com/1016sarp",
+  facebook: "https://www.facebook.com/1016sarp",
   tiktok: "https://www.tiktok.com/@1016bar",
 }
 
