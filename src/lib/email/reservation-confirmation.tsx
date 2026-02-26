@@ -25,7 +25,7 @@ export function ReservationConfirmationEmail({
     <body style="margin:0;padding:0;background:#050505;font-family:Arial,sans-serif;">
       <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
         <div style="text-align:center;margin-bottom:32px;">
-          <h1 style="color:#0798E8;font-size:32px;margin:0;">1016 <span style="color:#D93CEF;">BAR</span></h1>
+          <img src="https://bar1016.no/logo.png" alt="1016" width="120" height="90" style="display:inline-block;" />
         </div>
         <div style="background:#111;border-radius:12px;padding:32px;border:1px solid rgba(255,255,255,0.1);">
           <h2 style="color:#fff;margin-top:0;">Takk for din bestilling, ${name}!</h2>
