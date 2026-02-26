@@ -34,6 +34,7 @@ export async function updateMenuItem(
     price?: number
     category_id?: string
     is_active?: boolean
+    is_featured?: boolean
     sort_order?: number
   },
 ) {
@@ -44,6 +45,7 @@ export async function updateMenuItem(
   revalidatePath("/meny")
   revalidatePath("/admin/meny")
   revalidatePath("/tv-meny")
+  revalidatePath("/")
 }
 
 export async function deleteMenuItem(id: string) {

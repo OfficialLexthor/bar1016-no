@@ -25,6 +25,7 @@ export function FeaturedCocktailsSection() {
         .from("menu_items")
         .select("*, menu_categories(name, neon_color)")
         .eq("is_active", true)
+        .eq("is_featured", true)
         .limit(6)
 
       if (!error && data) {

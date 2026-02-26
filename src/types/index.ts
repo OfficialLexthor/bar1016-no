@@ -25,6 +25,7 @@ export interface MenuItem {
   description: string | null
   price: number
   is_active: boolean
+  is_featured: boolean
   sort_order: number
   created_at: string
   updated_at: string

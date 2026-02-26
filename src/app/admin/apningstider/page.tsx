@@ -75,7 +75,8 @@ export default function AdminOpeningHoursPage() {
     try {
       await updateOpeningHours(
         hours.map((h) => ({
-          id: h.id,
+          day_of_week: h.day_of_week,
+          day_name: h.day_name,
           is_open: h.is_open,
           open_time: h.open_time,
           close_time: h.close_time,

@@ -36,8 +36,9 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, Star } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import { formatPrice } from "@/lib/utils/format"
 import { createClient } from "@/lib/supabase/client"
 import {
@@ -66,6 +67,7 @@ const emptyItem = {
   description: "",
   price: 0,
   is_active: true,
+  is_featured: false,
 }
 
 const emptyCategory = {
@@ -135,6 +137,7 @@ export default function AdminMenuPage() {
       description: item.description ?? "",
       price: item.price,
       is_active: item.is_active,
+      is_featured: item.is_featured,
     })
     setItemDialogOpen(true)
   }
@@ -154,6 +157,7 @@ export default function AdminMenuPage() {
           description: itemForm.description || null,
           price: itemForm.price,
           is_active: itemForm.is_active,
+          is_featured: itemForm.is_featured,
         })
         toast.success(`"${itemForm.name}" oppdatert`)
       } else {
@@ -302,6 +306,7 @@ export default function AdminMenuPage() {
                     <TableHead className="text-gray-400">Kategori</TableHead>
                     <TableHead className="text-gray-400">Pris</TableHead>
                     <TableHead className="text-gray-400">Aktiv</TableHead>
+                    <TableHead className="text-gray-400">Utvalgt</TableHead>
                     <TableHead className="text-gray-400 text-right">
                       Handlinger
                     </TableHead>
@@ -333,6 +338,33 @@ export default function AdminMenuPage() {
                         >
                           {item.is_active ? "Aktiv" : "Inaktiv"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={async () => {
+                            try {
+                              await updateMenuItem(item.id, {
+                                is_featured: !item.is_featured,
+                              })
+                              await fetchData()
+                            } catch (error) {
+                              const msg = error instanceof Error ? error.message : "Noe gikk galt"
+                              toast.error(msg)
+                            }
+                          }}
+                        >
+                          <Star
+                            className={cn(
+                              "h-4 w-4",
+                              item.is_featured
+                                ? "fill-neon-gold text-neon-gold"
+                                : "text-gray-600"
+                            )}
+                          />
+                        </Button>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -544,19 +576,35 @@ export default function AdminMenuPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="item-active"
-                checked={itemForm.is_active}
-                onChange={(e) =>
-                  setItemForm((f) => ({ ...f, is_active: e.target.checked }))
-                }
-                className="rounded border-white/20 bg-black/40"
-              />
-              <Label htmlFor="item-active" className="text-gray-300">
-                Aktiv (synlig på menyen)
-              </Label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="item-active"
+                  checked={itemForm.is_active}
+                  onChange={(e) =>
+                    setItemForm((f) => ({ ...f, is_active: e.target.checked }))
+                  }
+                  className="rounded border-white/20 bg-black/40"
+                />
+                <Label htmlFor="item-active" className="text-gray-300">
+                  Aktiv
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="item-featured"
+                  checked={itemForm.is_featured}
+                  onChange={(e) =>
+                    setItemForm((f) => ({ ...f, is_featured: e.target.checked }))
+                  }
+                  className="rounded border-white/20 bg-black/40"
+                />
+                <Label htmlFor="item-featured" className="text-gray-300">
+                  Utvalgt (vis på forsiden)
+                </Label>
+              </div>
             </div>
           </div>
 
