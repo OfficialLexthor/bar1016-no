@@ -28,4 +28,7 @@ export async function updateOpeningHours(
 
   revalidatePath("/admin/apningstider")
   revalidatePath("/")
+  revalidatePath("/kontakt")
+  revalidatePath("/bordbestilling")
+  revalidatePath("/om-oss")
 }

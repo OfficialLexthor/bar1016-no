@@ -178,7 +178,7 @@ export default function AdminGalleryPage() {
             </p>
             <Button onClick={handleUploadClick} size="sm" disabled={saving}>
               <Upload className="h-4 w-4 mr-2" />
-              Last opp forste bilde
+              Last opp første bilde
             </Button>
           </CardContent>
         </Card>

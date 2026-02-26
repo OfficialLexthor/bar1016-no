@@ -1,13 +1,17 @@
 import type { Metadata } from "next"
 
 import { SITE_NAME, ADDRESS } from "@/lib/utils/constants"
+import { getOpeningHours, formatOpeningHoursSummary } from "@/lib/queries/opening-hours"
 
 export const metadata: Metadata = {
   title: "Om oss",
   description: `Les om ${SITE_NAME} - cocktail- og karaokebar i ${ADDRESS.city}. Vår historie, konsept og atmosfære.`,
 }
 
-export default function OmOssPage() {
+export default async function OmOssPage() {
+  const openingHours = await getOpeningHours()
+  const summary = formatOpeningHoursSummary(openingHours)
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
       <h1 className="text-4xl md:text-5xl font-bold text-center mb-12 neon-glow-pink text-neon-pink">
@@ -73,7 +77,7 @@ export default function OmOssPage() {
             </p>
             <p>
               Vi holder til i {ADDRESS.full}, og ønsker deg velkommen
-              torsdag til lørdag fra klokken 18:00.
+              {summary}.
             </p>
           </div>
         </section>

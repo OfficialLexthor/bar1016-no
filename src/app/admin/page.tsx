@@ -15,14 +15,41 @@ import {
   MessageSquare,
   Megaphone,
 } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
 
-export default function AdminDashboardPage() {
-  // TODO: Replace with Supabase queries
+export default async function AdminDashboardPage() {
+  const supabase = await createClient()
+  const today = new Date().toISOString().split("T")[0]
+
+  const [
+    { count: reservationsToday },
+    { count: pendingReservations },
+    { count: activeEvents },
+    { count: menuItems },
+  ] = await Promise.all([
+    supabase
+      .from("reservations")
+      .select("*", { count: "exact", head: true })
+      .eq("date", today),
+    supabase
+      .from("reservations")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("events")
+      .select("*", { count: "exact", head: true })
+      .gte("event_date", today),
+    supabase
+      .from("menu_items")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true),
+  ])
+
   const stats = {
-    reservationsToday: 3,
-    pendingReservations: 5,
-    activeEvents: 2,
-    menuItems: 24,
+    reservationsToday: reservationsToday ?? 0,
+    pendingReservations: pendingReservations ?? 0,
+    activeEvents: activeEvents ?? 0,
+    menuItems: menuItems ?? 0,
   }
 
   return (

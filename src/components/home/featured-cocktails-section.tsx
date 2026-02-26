@@ -1,42 +1,45 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { NeonText } from "@/components/neon/neon-text"
 import { NeonCard } from "@/components/neon/neon-card"
 import { formatPrice } from "@/lib/utils/format"
+import { createClient } from "@/lib/supabase/client"
+import type { MenuItem, NeonColor } from "@/types"
 
-const FEATURED_COCKTAILS = [
-  {
-    name: "Espresso Martini",
-    description: "Vodka, kaffelikør, fersk espresso og enkelt sirup.",
-    price: 169,
-  },
-  {
-    name: "Negroni",
-    description: "Gin, Campari og søt vermut. En klassiker som aldri svikter.",
-    price: 169,
-  },
-  {
-    name: "Passionfruit Martini",
-    description:
-      "Vodka, pasjonsfruktpuré, vaniljesirup og lime. Frisk og fruktig.",
-    price: 169,
-  },
-  {
-    name: "Old Fashioned",
-    description: "Bourbon, angostura bitters, sukker og appelsinskall.",
-    price: 169,
-  },
-  {
-    name: "Aperol Spritz",
-    description: "Aperol, prosecco og dask av sodavann. Sommerens favoritt.",
-    price: 169,
-  },
-  {
-    name: "Mojito",
-    description: "Hvit rom, limejuice, sukker, mynte og sodavann.",
-    price: 169,
-  },
-] as const
+interface MenuItemWithCategory extends MenuItem {
+  menu_categories: {
+    name: string
+    neon_color: NeonColor
+  } | null
+}
 
 export function FeaturedCocktailsSection() {
+  const [cocktails, setCocktails] = useState<MenuItemWithCategory[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchCocktails() {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("menu_items")
+        .select("*, menu_categories(name, neon_color)")
+        .eq("is_active", true)
+        .limit(6)
+
+      if (!error && data) {
+        setCocktails(data as MenuItemWithCategory[])
+      }
+      setLoading(false)
+    }
+
+    fetchCocktails()
+  }, [])
+
+  if (!loading && cocktails.length === 0) {
+    return null
+  }
+
   return (
     <section className="py-16 px-4 md:py-24">
       <div className="mx-auto max-w-7xl">
@@ -49,23 +52,36 @@ export function FeaturedCocktailsSection() {
         </NeonText>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURED_COCKTAILS.map((cocktail) => (
-            <NeonCard key={cocktail.name} color="cyan">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-semibold text-neon-cyan">
-                    {cocktail.name}
-                  </h3>
-                  <span className="shrink-0 font-mono text-sm font-medium text-neon-gold">
-                    {formatPrice(cocktail.price)}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {cocktail.description}
-                </p>
-              </div>
-            </NeonCard>
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <NeonCard key={i} color="cyan">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="h-5 w-32 rounded bg-white/5 animate-pulse" />
+                      <span className="h-4 w-14 rounded bg-white/5 animate-pulse" />
+                    </div>
+                    <span className="h-4 w-full rounded bg-white/5 animate-pulse" />
+                    <span className="h-4 w-2/3 rounded bg-white/5 animate-pulse" />
+                  </div>
+                </NeonCard>
+              ))
+            : cocktails.map((cocktail) => (
+                <NeonCard key={cocktail.id} color={cocktail.menu_categories?.neon_color ?? "cyan"}>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="text-lg font-semibold text-neon-cyan">
+                        {cocktail.name}
+                      </h3>
+                      <span className="shrink-0 font-mono text-sm font-medium text-neon-gold">
+                        {formatPrice(cocktail.price)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {cocktail.description}
+                    </p>
+                  </div>
+                </NeonCard>
+              ))}
         </div>
       </div>
     </section>

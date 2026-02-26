@@ -7,6 +7,7 @@ import { FeaturedCocktailsSection } from "@/components/home/featured-cocktails-s
 import { UpcomingEventsSection } from "@/components/home/upcoming-events-section"
 import { CampaignsSection } from "@/components/home/campaigns-section"
 import { SITE_NAME, SITE_DESCRIPTION, ADDRESS, SITE_URL, SOCIAL_LINKS } from "@/lib/utils/constants"
+import { getOpeningHours, buildOpeningHoursSchema } from "@/lib/queries/opening-hours"
 
 export const metadata = {
   title: `${SITE_NAME} | Cocktails & Karaoke i Sarpsborg`,
@@ -14,7 +15,9 @@ export const metadata = {
   alternates: { canonical: SITE_URL },
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const openingHours = await getOpeningHours()
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BarOrPub",
@@ -28,14 +31,7 @@ export default function HomePage() {
       postalCode: ADDRESS.postalCode,
       addressCountry: "NO",
     },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Thursday", "Friday", "Saturday"],
-        opens: "18:00",
-        closes: "03:00",
-      },
-    ],
+    openingHoursSpecification: buildOpeningHoursSchema(openingHours),
     sameAs: [SOCIAL_LINKS.instagram, SOCIAL_LINKS.facebook, SOCIAL_LINKS.tiktok],
     servesCuisine: "Cocktails",
     priceRange: "$$",

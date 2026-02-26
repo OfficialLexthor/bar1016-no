@@ -91,7 +91,7 @@ export default function AdminCampaignsPage() {
 
   async function handleSave() {
     if (!form.title || !form.start_date || !form.end_date) {
-      toast.error("Fyll ut alle pakrevde felt")
+      toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
@@ -180,7 +180,7 @@ export default function AdminCampaignsPage() {
               Ingen kampanjer ennå
             </p>
             <p className="text-gray-500 text-sm mb-4">
-              Opprett din forste kampanje for å komme i gang.
+              Opprett din første kampanje for å komme i gang.
             </p>
             <Button onClick={openAdd} size="sm">
               <Plus className="h-4 w-4 mr-2" />
