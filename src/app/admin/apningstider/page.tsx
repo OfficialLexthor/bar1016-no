@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,10 +11,10 @@ import { Save } from "lucide-react"
 import { toast } from "sonner"
 import { DAY_NAMES } from "@/lib/utils/constants"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { updateOpeningHours } from "@/lib/actions/opening-hours"
 import type { OpeningHours } from "@/types"
 
-// Default opening hours: Thu/Fri/Sat 18:00-03:00, others closed
-// DAY_NAMES is indexed 0=Sunday through 6=Saturday
 function getDefaultHours(): OpeningHours[] {
   return DAY_NAMES.map((dayName, index) => {
     const isOpen = index === 4 || index === 5 || index === 6 // Thu, Fri, Sat
@@ -30,15 +30,28 @@ function getDefaultHours(): OpeningHours[] {
 }
 
 export default function AdminOpeningHoursPage() {
-  // TODO: Replace with Supabase queries when connected
   const [hours, setHours] = useState<OpeningHours[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    setHours(getDefaultHours())
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("opening_hours")
+      .select("*")
+      .order("day_of_week")
+
+    if (data && data.length > 0) {
+      setHours(data)
+    } else {
+      setHours(getDefaultHours())
+    }
     setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   function updateHour(index: number, field: keyof OpeningHours, value: string | boolean) {
     setHours((prev) =>
@@ -59,10 +72,23 @@ export default function AdminOpeningHoursPage() {
 
   async function handleSave() {
     setSaving(true)
-    // TODO: Save to Supabase
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    toast.success("Åpningstider lagret")
-    setSaving(false)
+    try {
+      await updateOpeningHours(
+        hours.map((h) => ({
+          id: h.id,
+          is_open: h.is_open,
+          open_time: h.open_time,
+          close_time: h.close_time,
+        }))
+      )
+      toast.success("Åpningstider lagret")
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {

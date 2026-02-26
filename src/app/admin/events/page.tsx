@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/utils/format"
+import { createClient } from "@/lib/supabase/client"
+import { createEvent, updateEvent, deleteEvent } from "@/lib/actions/events"
 import type { Event } from "@/types"
 
 const EVENT_TYPES = [
@@ -55,9 +57,9 @@ const emptyEvent = {
 }
 
 export default function AdminEventsPage() {
-  // TODO: Replace with Supabase queries when connected
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
@@ -66,9 +68,20 @@ export default function AdminEventsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Event | null>(null)
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("events")
+      .select("*")
+      .order("event_date", { ascending: false })
+
+    if (data) setEvents(data)
     setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   function openAdd() {
     setEditingEvent(null)
@@ -90,51 +103,44 @@ export default function AdminEventsPage() {
     setDialogOpen(true)
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.title || !form.event_date || !form.start_time) {
       toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
-    if (editingEvent) {
-      // TODO: Update via Supabase
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === editingEvent.id
-            ? {
-                ...e,
-                title: form.title,
-                description: form.description || null,
-                event_date: form.event_date,
-                start_time: form.start_time,
-                end_time: form.end_time || null,
-                event_type: form.event_type,
-                is_published: form.is_published,
-              }
-            : e
-        )
-      )
-      toast.success(`"${form.title}" oppdatert`)
-    } else {
-      // TODO: Insert via Supabase
-      const newEvent: Event = {
-        id: crypto.randomUUID(),
-        title: form.title,
-        description: form.description || null,
-        event_date: form.event_date,
-        start_time: form.start_time,
-        end_time: form.end_time || null,
-        event_type: form.event_type,
-        image_url: null,
-        is_published: form.is_published,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+    setSaving(true)
+    try {
+      if (editingEvent) {
+        await updateEvent(editingEvent.id, {
+          title: form.title,
+          description: form.description || null,
+          event_date: form.event_date,
+          start_time: form.start_time,
+          end_time: form.end_time || null,
+          event_type: form.event_type,
+          is_published: form.is_published,
+        })
+        toast.success(`"${form.title}" oppdatert`)
+      } else {
+        await createEvent({
+          title: form.title,
+          description: form.description || undefined,
+          event_date: form.event_date,
+          start_time: form.start_time,
+          end_time: form.end_time || undefined,
+          event_type: form.event_type,
+        })
+        toast.success(`"${form.title}" opprettet`)
       }
-      setEvents((prev) => [...prev, newEvent])
-      toast.success(`"${form.title}" opprettet`)
+      setDialogOpen(false)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
     }
-
-    setDialogOpen(false)
   }
 
   function confirmDelete(event: Event) {
@@ -142,13 +148,22 @@ export default function AdminEventsPage() {
     setDeleteDialogOpen(true)
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
-    // TODO: Delete via Supabase
-    setEvents((prev) => prev.filter((e) => e.id !== deleteTarget.id))
-    toast.success(`"${deleteTarget.title}" slettet`)
-    setDeleteDialogOpen(false)
-    setDeleteTarget(null)
+
+    setSaving(true)
+    try {
+      await deleteEvent(deleteTarget.id)
+      toast.success(`"${deleteTarget.title}" slettet`)
+      setDeleteDialogOpen(false)
+      setDeleteTarget(null)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   function getEventTypeLabel(type: Event["event_type"]) {
@@ -405,8 +420,12 @@ export default function AdminEventsPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button onClick={handleSave}>
-              {editingEvent ? "Lagre endringer" : "Opprett"}
+            <Button onClick={handleSave} disabled={saving}>
+              {saving
+                ? "Lagrer..."
+                : editingEvent
+                  ? "Lagre endringer"
+                  : "Opprett"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -428,8 +447,12 @@ export default function AdminEventsPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={handleDelete}>
-              Slett
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={saving}
+            >
+              {saving ? "Sletter..." : "Slett"}
             </Button>
           </DialogFooter>
         </DialogContent>

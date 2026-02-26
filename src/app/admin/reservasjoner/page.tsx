@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +29,8 @@ import { BookOpen, Check, X, MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate, formatTime } from "@/lib/utils/format"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { updateReservationStatus } from "@/lib/actions/reservations"
 import type { Reservation } from "@/types"
 
 const statusConfig = {
@@ -47,37 +49,56 @@ const statusConfig = {
 } as const
 
 export default function AdminReservationsPage() {
-  // TODO: Replace with Supabase queries when connected
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState("alle")
 
   const [notesDialogOpen, setNotesDialogOpen] = useState(false)
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [adminNotes, setAdminNotes] = useState("")
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("reservations")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (data) setReservations(data)
     setLoading(false)
   }, [])
 
-  function handleConfirm(reservation: Reservation) {
-    // TODO: Update via Supabase
-    setReservations((prev) =>
-      prev.map((r) =>
-        r.id === reservation.id ? { ...r, status: "confirmed" as const } : r
-      )
-    )
-    toast.success(`Reservasjon fra ${reservation.name} bekreftet`)
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  async function handleConfirm(reservation: Reservation) {
+    setSaving(true)
+    try {
+      await updateReservationStatus(reservation.id, "confirmed")
+      toast.success(`Reservasjon fra ${reservation.name} bekreftet`)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
-  function handleCancel(reservation: Reservation) {
-    // TODO: Update via Supabase
-    setReservations((prev) =>
-      prev.map((r) =>
-        r.id === reservation.id ? { ...r, status: "cancelled" as const } : r
-      )
-    )
-    toast.success(`Reservasjon fra ${reservation.name} avvist`)
+  async function handleCancel(reservation: Reservation) {
+    setSaving(true)
+    try {
+      await updateReservationStatus(reservation.id, "cancelled")
+      toast.success(`Reservasjon fra ${reservation.name} avvist`)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   function openNotes(reservation: Reservation) {
@@ -86,18 +107,28 @@ export default function AdminReservationsPage() {
     setNotesDialogOpen(true)
   }
 
-  function handleSaveNotes() {
+  async function handleSaveNotes() {
     if (!selectedReservation) return
-    // TODO: Update via Supabase
-    setReservations((prev) =>
-      prev.map((r) =>
-        r.id === selectedReservation.id
-          ? { ...r, admin_notes: adminNotes || null }
-          : r
-      )
-    )
-    toast.success("Notater lagret")
-    setNotesDialogOpen(false)
+
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("reservations")
+        .update({ admin_notes: adminNotes || null })
+        .eq("id", selectedReservation.id)
+
+      if (error) throw new Error(error.message)
+
+      toast.success("Notater lagret")
+      setNotesDialogOpen(false)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const filteredReservations =
@@ -233,6 +264,7 @@ export default function AdminReservationsPage() {
                                   size="icon"
                                   className="h-8 w-8 text-green-400 hover:text-green-300 hover:bg-green-500/10"
                                   onClick={() => handleConfirm(reservation)}
+                                  disabled={saving}
                                   title="Bekreft"
                                 >
                                   <Check className="h-4 w-4" />
@@ -242,6 +274,7 @@ export default function AdminReservationsPage() {
                                   size="icon"
                                   className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                   onClick={() => handleCancel(reservation)}
+                                  disabled={saving}
                                   title="Avvis"
                                 >
                                   <X className="h-4 w-4" />
@@ -305,7 +338,9 @@ export default function AdminReservationsPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button onClick={handleSaveNotes}>Lagre notater</Button>
+            <Button onClick={handleSaveNotes} disabled={saving}>
+              {saving ? "Lagrer..." : "Lagre notater"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
