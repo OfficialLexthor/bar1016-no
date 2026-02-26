@@ -14,6 +14,17 @@ export async function markMessageAsRead(id: string) {
   revalidatePath("/admin/meldinger")
 }
 
+export async function markMessageAsUnread(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("contact_messages")
+    .update({ is_read: false })
+    .eq("id", id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/admin/meldinger")
+}
+
 export async function deleteMessage(id: string) {
   const supabase = await createClient()
   const { error } = await supabase

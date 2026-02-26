@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -26,12 +26,18 @@ import { MessageSquare, Mail, MailOpen, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/utils/format"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import {
+  markMessageAsRead,
+  markMessageAsUnread,
+  deleteMessage,
+} from "@/lib/actions/messages"
 import type { ContactMessage } from "@/types"
 
 export default function AdminMessagesPage() {
-  // TODO: Replace with Supabase queries when connected
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
@@ -39,39 +45,56 @@ export default function AdminMessagesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ContactMessage | null>(null)
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (data) setMessages(data)
     setLoading(false)
   }, [])
 
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
   const unreadCount = messages.filter((m) => !m.is_read).length
 
-  function viewMessage(message: ContactMessage) {
+  async function viewMessage(message: ContactMessage) {
     setSelectedMessage(message)
     setViewDialogOpen(true)
 
     // Auto-mark as read when opening
     if (!message.is_read) {
-      markAsRead(message.id)
+      try {
+        await markMessageAsRead(message.id)
+        await fetchData()
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "Noe gikk galt"
+        toast.error(msg)
+      }
     }
   }
 
-  function markAsRead(id: string) {
-    // TODO: Update via Supabase
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, is_read: true } : m))
-    )
-  }
-
-  function toggleRead(message: ContactMessage) {
-    // TODO: Update via Supabase
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === message.id ? { ...m, is_read: !m.is_read } : m
-      )
-    )
-    toast.success(
-      message.is_read ? "Merket som ulest" : "Merket som lest"
-    )
+  async function toggleRead(message: ContactMessage) {
+    setSaving(true)
+    try {
+      if (message.is_read) {
+        await markMessageAsUnread(message.id)
+        toast.success("Merket som ulest")
+      } else {
+        await markMessageAsRead(message.id)
+        toast.success("Merket som lest")
+      }
+      await fetchData()
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(msg)
+    } finally {
+      setSaving(false)
+    }
   }
 
   function confirmDelete(message: ContactMessage) {
@@ -79,13 +102,22 @@ export default function AdminMessagesPage() {
     setDeleteDialogOpen(true)
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
-    // TODO: Delete via Supabase
-    setMessages((prev) => prev.filter((m) => m.id !== deleteTarget.id))
-    toast.success("Melding slettet")
-    setDeleteDialogOpen(false)
-    setDeleteTarget(null)
+
+    setSaving(true)
+    try {
+      await deleteMessage(deleteTarget.id)
+      toast.success("Melding slettet")
+      setDeleteDialogOpen(false)
+      setDeleteTarget(null)
+      await fetchData()
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(msg)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -204,6 +236,7 @@ export default function AdminMessagesPage() {
                           size="icon"
                           className="h-8 w-8 text-gray-400 hover:text-white"
                           onClick={() => toggleRead(message)}
+                          disabled={saving}
                           title={
                             message.is_read
                               ? "Merk som ulest"
@@ -280,8 +313,12 @@ export default function AdminMessagesPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={handleDelete}>
-              Slett
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={saving}
+            >
+              {saving ? "Sletter..." : "Slett"}
             </Button>
           </DialogFooter>
         </DialogContent>

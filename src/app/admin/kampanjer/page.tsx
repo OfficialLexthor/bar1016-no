@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Plus, Pencil, Trash2, Megaphone } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/utils/format"
+import { createClient } from "@/lib/supabase/client"
+import {
+  createCampaign,
+  updateCampaign,
+  deleteCampaign,
+} from "@/lib/actions/campaigns"
 import type { Campaign } from "@/types"
 
 const emptyCampaign = {
@@ -39,9 +45,9 @@ const emptyCampaign = {
 }
 
 export default function AdminCampaignsPage() {
-  // TODO: Replace with Supabase queries when connected
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
@@ -50,9 +56,20 @@ export default function AdminCampaignsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Campaign | null>(null)
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("campaigns")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (data) setCampaigns(data)
     setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   function openAdd() {
     setEditingCampaign(null)
@@ -72,47 +89,40 @@ export default function AdminCampaignsPage() {
     setDialogOpen(true)
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.title || !form.start_date || !form.end_date) {
-      toast.error("Fyll ut alle påkrevde felt")
+      toast.error("Fyll ut alle pakrevde felt")
       return
     }
 
-    if (editingCampaign) {
-      // TODO: Update via Supabase
-      setCampaigns((prev) =>
-        prev.map((c) =>
-          c.id === editingCampaign.id
-            ? {
-                ...c,
-                title: form.title,
-                description: form.description || null,
-                start_date: form.start_date,
-                end_date: form.end_date,
-                is_active: form.is_active,
-              }
-            : c
-        )
-      )
-      toast.success(`"${form.title}" oppdatert`)
-    } else {
-      // TODO: Insert via Supabase
-      const newCampaign: Campaign = {
-        id: crypto.randomUUID(),
-        title: form.title,
-        description: form.description || null,
-        image_url: null,
-        start_date: form.start_date,
-        end_date: form.end_date,
-        is_active: form.is_active,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+    setSaving(true)
+    try {
+      if (editingCampaign) {
+        await updateCampaign(editingCampaign.id, {
+          title: form.title,
+          description: form.description || null,
+          start_date: form.start_date,
+          end_date: form.end_date,
+          is_active: form.is_active,
+        })
+        toast.success(`"${form.title}" oppdatert`)
+      } else {
+        await createCampaign({
+          title: form.title,
+          description: form.description || undefined,
+          start_date: form.start_date,
+          end_date: form.end_date,
+        })
+        toast.success(`"${form.title}" opprettet`)
       }
-      setCampaigns((prev) => [...prev, newCampaign])
-      toast.success(`"${form.title}" opprettet`)
+      setDialogOpen(false)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
     }
-
-    setDialogOpen(false)
   }
 
   function confirmDelete(campaign: Campaign) {
@@ -120,13 +130,22 @@ export default function AdminCampaignsPage() {
     setDeleteDialogOpen(true)
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
-    // TODO: Delete via Supabase
-    setCampaigns((prev) => prev.filter((c) => c.id !== deleteTarget.id))
-    toast.success(`"${deleteTarget.title}" slettet`)
-    setDeleteDialogOpen(false)
-    setDeleteTarget(null)
+
+    setSaving(true)
+    try {
+      await deleteCampaign(deleteTarget.id)
+      toast.success(`"${deleteTarget.title}" slettet`)
+      setDeleteDialogOpen(false)
+      setDeleteTarget(null)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -161,7 +180,7 @@ export default function AdminCampaignsPage() {
               Ingen kampanjer ennå
             </p>
             <p className="text-gray-500 text-sm mb-4">
-              Opprett din første kampanje for å komme i gang.
+              Opprett din forste kampanje for å komme i gang.
             </p>
             <Button onClick={openAdd} size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -336,8 +355,12 @@ export default function AdminCampaignsPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button onClick={handleSave}>
-              {editingCampaign ? "Lagre endringer" : "Opprett"}
+            <Button onClick={handleSave} disabled={saving}>
+              {saving
+                ? "Lagrer..."
+                : editingCampaign
+                  ? "Lagre endringer"
+                  : "Opprett"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -359,8 +382,12 @@ export default function AdminCampaignsPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={handleDelete}>
-              Slett
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={saving}
+            >
+              {saving ? "Sletter..." : "Slett"}
             </Button>
           </DialogFooter>
         </DialogContent>

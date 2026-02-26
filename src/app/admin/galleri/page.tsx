@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -15,23 +15,92 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Plus, Trash2, Image as ImageIcon, Upload } from "lucide-react"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+import {
+  createGalleryImage,
+  deleteGalleryImage,
+} from "@/lib/actions/gallery"
 import type { GalleryImage } from "@/types"
 
 export default function AdminGalleryPage() {
-  // TODO: Replace with Supabase queries when connected
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<GalleryImage | null>(null)
 
-  useEffect(() => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("gallery_images")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (data) setImages(data)
     setLoading(false)
   }, [])
 
-  function handleUpload() {
-    // TODO: Connect to Supabase Storage
-    toast.info("Bildeopplasting vil bli koblet til Supabase Storage")
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  function handleUploadClick() {
+    fileInputRef.current?.click()
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Reset input so the same file can be selected again
+    e.target.value = ""
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Ugyldig filtype. Bruk JPG, PNG, WebP eller GIF.")
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      toast.error("Filen er for stor. Maks 5MB.")
+      return
+    }
+
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split(".").pop()
+      const fileName = `${crypto.randomUUID()}.${ext}`
+      const storagePath = fileName
+
+      const { error: uploadError } = await supabase.storage
+        .from("gallery")
+        .upload(storagePath, file)
+
+      if (uploadError) throw new Error(uploadError.message)
+
+      const { data: urlData } = supabase.storage
+        .from("gallery")
+        .getPublicUrl(storagePath)
+
+      await createGalleryImage({
+        url: urlData.publicUrl,
+        alt: file.name.replace(/\.[^/.]+$/, ""),
+        sort_order: images.length,
+      })
+
+      toast.success("Bilde lastet opp")
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   function confirmDelete(image: GalleryImage) {
@@ -39,13 +108,27 @@ export default function AdminGalleryPage() {
     setDeleteDialogOpen(true)
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
-    // TODO: Delete from Supabase Storage + database
-    setImages((prev) => prev.filter((i) => i.id !== deleteTarget.id))
-    toast.success("Bilde slettet")
-    setDeleteDialogOpen(false)
-    setDeleteTarget(null)
+
+    setSaving(true)
+    try {
+      // Extract the storage path from the full URL
+      const url = new URL(deleteTarget.url)
+      const pathParts = url.pathname.split("/storage/v1/object/public/gallery/")
+      const storagePath = pathParts[1] ?? ""
+
+      await deleteGalleryImage(deleteTarget.id, storagePath)
+      toast.success("Bilde slettet")
+      setDeleteDialogOpen(false)
+      setDeleteTarget(null)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -70,10 +153,17 @@ export default function AdminGalleryPage() {
             Administrer bilder i galleriet
           </p>
         </div>
-        <Button onClick={handleUpload} size="sm">
+        <Button onClick={handleUploadClick} size="sm" disabled={saving}>
           <Upload className="h-4 w-4 mr-2" />
-          Last opp bilde
+          {saving ? "Laster opp..." : "Last opp bilde"}
         </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
 
       {images.length === 0 ? (
@@ -86,9 +176,9 @@ export default function AdminGalleryPage() {
             <p className="text-gray-500 text-sm mb-4">
               Last opp bilder for å fylle galleriet.
             </p>
-            <Button onClick={handleUpload} size="sm">
+            <Button onClick={handleUploadClick} size="sm" disabled={saving}>
               <Upload className="h-4 w-4 mr-2" />
-              Last opp første bilde
+              Last opp forste bilde
             </Button>
           </CardContent>
         </Card>
@@ -141,8 +231,12 @@ export default function AdminGalleryPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={handleDelete}>
-              Slett
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={saving}
+            >
+              {saving ? "Sletter..." : "Slett"}
             </Button>
           </DialogFooter>
         </DialogContent>
