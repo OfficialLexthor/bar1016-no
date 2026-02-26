@@ -6,116 +6,6 @@ import { getNeonColor } from "@/lib/utils/neon-colors"
 import { formatPrice } from "@/lib/utils/format"
 import type { MenuCategoryWithItems, NeonColor } from "@/types"
 
-// Hardcoded fallback menu for when Supabase is not connected
-const FALLBACK_MENU: MenuCategoryWithItems[] = [
-  {
-    id: "1", name: "Signatur Cocktails", slug: "signatur-cocktails", sort_order: 0,
-    neon_color: "cyan" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "1", category_id: "1", name: "Strawberry Daiquiri", description: "Bacardi Carta Blanca, Sukker, Jordbær, Lime", price: 169, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "2", category_id: "1", name: "Mojito", description: "Bacardi Carta Blanca, Sukker, Lime, Mynte", price: 169, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "3", category_id: "1", name: "Mango Daiquiri", description: "Bacardi Carta Blanca, Sukker, Mango, Lime", price: 169, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "4", category_id: "1", name: "Long Island Ice Tea", description: "Gin, Vodka, Rom, Tequila, Tripplesec, Sourmix, Cola, Lime", price: 169, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-      { id: "5", category_id: "1", name: "Hugo Spritz", description: "St-Germain Hylleblomstlikør, Prosecco, Soda, Sitron, Mynte", price: 169, is_active: true, sort_order: 4, created_at: "", updated_at: "" },
-      { id: "6", category_id: "1", name: "Aperol Spritz", description: "Aperol, Prosecco, Soda Appelsin", price: 169, is_active: true, sort_order: 5, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "2", name: "Klassiske Cocktails", slug: "klassiske-cocktails", sort_order: 1,
-    neon_color: "pink" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "7", category_id: "2", name: "Whiskey Sour", description: "Whiskey, Sitronjuice, Sukkerlake, Eggehvite, Angostura Bitter", price: 159, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "8", category_id: "2", name: "Sure Føtter", description: "Eristoff Vodka, Jägermeister, Midori, Cola, Sourmix, Peach", price: 159, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "9", category_id: "2", name: "Snowball", description: "Eristoff Vodka, Eggelikør, Sprite, Lime", price: 159, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "10", category_id: "2", name: "Pink Russian", description: "Pink Gin, Russian, Lime", price: 159, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-      { id: "11", category_id: "2", name: "Moscow Mule", description: "Barcardi Vodka, Ingefærøl, Lime", price: 159, is_active: true, sort_order: 4, created_at: "", updated_at: "" },
-      { id: "12", category_id: "2", name: "Mie's", description: "Bacardi Razz, Peachtree, Sourmix, Lime, Sprite", price: 159, is_active: true, sort_order: 5, created_at: "", updated_at: "" },
-      { id: "13", category_id: "2", name: "Lennart", description: "Eristoff Vodka, Xante, Sprite, Lime", price: 159, is_active: true, sort_order: 6, created_at: "", updated_at: "" },
-      { id: "14", category_id: "2", name: "Dark & Stormy", description: "Bacardi Spiced, Ingefærøl, Lime", price: 159, is_active: true, sort_order: 7, created_at: "", updated_at: "" },
-      { id: "15", category_id: "2", name: "Clover Club", description: "Bombay Sapphire Gin, Bringebærsirup, Sitronjuice, Eggehvite", price: 159, is_active: true, sort_order: 8, created_at: "", updated_at: "" },
-      { id: "16", category_id: "2", name: "Amaretto Sour", description: "Amaretto, Sitronjuice, Sukkerlake, Eggehvite, Angostura Bitter", price: 159, is_active: true, sort_order: 9, created_at: "", updated_at: "" },
-      { id: "17", category_id: "2", name: "Aloe Vera", description: "Bacardi Lemon, Melonlikør, Sourmix, Lime", price: 159, is_active: true, sort_order: 10, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "3", name: "Øl", slug: "ol", sort_order: 2,
-    neon_color: "green" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "18", category_id: "3", name: "Mango IPA 0,4", description: null, price: 139, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "19", category_id: "3", name: "Borg 0,5", description: null, price: 118, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "20", category_id: "3", name: "Borg 0,4", description: null, price: 98, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "21", category_id: "3", name: "Borg 0,3", description: null, price: 76, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "4", name: "Flaskeøl", slug: "flaskeol", sort_order: 3,
-    neon_color: "orange" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "22", category_id: "4", name: "Sol", description: null, price: 97, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "23", category_id: "4", name: "Nøgne Ø IPA", description: null, price: 109, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "24", category_id: "4", name: "Heineken", description: null, price: 119, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "25", category_id: "4", name: "Borg Lite", description: null, price: 119, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "5", name: "Cider/Rusbrus", slug: "cider-rusbrus", sort_order: 4,
-    neon_color: "red" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "26", category_id: "5", name: "Smirnoff Ice", description: null, price: 97, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "27", category_id: "5", name: "Grevens Pære", description: null, price: 109, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "28", category_id: "5", name: "Ginger Joe", description: null, price: 97, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "29", category_id: "5", name: "Bulmers", description: null, price: 129, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-      { id: "30", category_id: "5", name: "Breezer", description: null, price: 97, is_active: true, sort_order: 4, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "6", name: "Whiskey", slug: "whiskey", sort_order: 5,
-    neon_color: "gold" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "31", category_id: "6", name: "Teeling Single Malt", description: null, price: 139, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "32", category_id: "6", name: "Jack Daniels", description: null, price: 139, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "33", category_id: "6", name: "Angels Envy", description: null, price: 149, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "7", name: "Husets Vin", slug: "husets-vin", sort_order: 6,
-    neon_color: "purple" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "34", category_id: "7", name: "Prosecco Glass", description: null, price: 139, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "35", category_id: "7", name: "Glass", description: null, price: 139, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "36", category_id: "7", name: "Flaske", description: null, price: 599, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "8", name: "Shots", slug: "shots", sort_order: 7,
-    neon_color: "orange" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "37", category_id: "8", name: "Patrón Silver Tequila", description: null, price: 129, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "38", category_id: "8", name: "Over 20%", description: null, price: 119, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "39", category_id: "8", name: "Under 20%", description: null, price: 109, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "9", name: "Kaffe", slug: "kaffe", sort_order: 8,
-    neon_color: "green" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "40", category_id: "9", name: "Kaffe m/Baileys", description: null, price: 139, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "41", category_id: "9", name: "Irish Coffee", description: null, price: 159, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "42", category_id: "9", name: "Kaffe", description: null, price: 50, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-    ],
-  },
-  {
-    id: "10", name: "Øvrig", slug: "ovrig", sort_order: 9,
-    neon_color: "cyan" as NeonColor, is_active: true, created_at: "", updated_at: "",
-    menu_items: [
-      { id: "43", category_id: "10", name: "Otard (Cognac)", description: null, price: 139, is_active: true, sort_order: 0, created_at: "", updated_at: "" },
-      { id: "44", category_id: "10", name: "Brastad (Cognac)", description: null, price: 139, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-      { id: "45", category_id: "10", name: "Heineken (alkoholfri)", description: null, price: 55, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-      { id: "46", category_id: "10", name: "Brus", description: null, price: 50, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-    ],
-  },
-]
-
 function TvClock() {
   const [time, setTime] = useState("")
   const [date, setDate] = useState("")
@@ -298,10 +188,7 @@ function CategoryColumn({
 }
 
 export default function TvMenuPage() {
-  const { categories: realtimeCategories, loading } = useRealtimeMenu()
-
-  // Use realtime data if available, otherwise fallback
-  const categories = realtimeCategories.length > 0 ? realtimeCategories : FALLBACK_MENU
+  const { categories, loading } = useRealtimeMenu()
 
   // Distribute categories across 4 columns
   const columns: MenuCategoryWithItems[][] = [[], [], [], []]
