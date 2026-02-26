@@ -59,12 +59,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b border-white/10">
-        <Link href="/admin" className="block">
-          <h1 className="text-lg font-bold text-white">
-            <span className="text-neon-cyan">1016</span>{" "}
-            <span className="text-neon-pink">Bar</span>{" "}
-            <span className="text-gray-400 font-normal text-sm">Admin</span>
-          </h1>
+        <Link href="/admin" className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="1016" width={32} height={24} className="h-6 w-auto" />
+          <span className="text-gray-400 font-normal text-sm">Admin</span>
         </Link>
       </div>
 
@@ -112,11 +110,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile header */}
       <header className="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-[#111] border-b border-white/10 lg:hidden">
-        <h1 className="text-sm font-bold text-white">
-          <span className="text-neon-cyan">1016</span>{" "}
-          <span className="text-neon-pink">Bar</span>{" "}
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="1016" width={28} height={21} className="h-5 w-auto" />
           <span className="text-gray-400 font-normal text-xs">Admin</span>
-        </h1>
+        </div>
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="text-gray-400">

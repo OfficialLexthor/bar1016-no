@@ -83,11 +83,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">
-            <span className="text-neon-cyan neon-glow-cyan">1016</span>{" "}
-            <span className="text-neon-pink neon-glow-pink">BAR</span>
-          </h1>
-          <p className="text-gray-400 mt-2">Admin</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt="1016"
+            width={80}
+            height={60}
+            className="mx-auto mb-4 h-16 w-auto"
+          />
+          <p className="text-gray-400">Admin</p>
         </div>
         <Suspense fallback={null}>
           <LoginForm />
