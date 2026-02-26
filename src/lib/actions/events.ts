@@ -11,6 +11,7 @@ export async function createEvent(data: {
   end_time?: string
   event_type: string
   image_url?: string
+  is_published?: boolean
 }) {
   const supabase = await createClient()
   const { error } = await supabase.from("events").insert({
@@ -21,12 +22,13 @@ export async function createEvent(data: {
     end_time: data.end_time ?? null,
     event_type: data.event_type,
     image_url: data.image_url ?? null,
-    is_published: false,
+    is_published: data.is_published ?? true,
   })
 
   if (error) throw new Error(error.message)
   revalidatePath("/events")
   revalidatePath("/admin/events")
+  revalidatePath("/")
 }
 
 export async function updateEvent(
@@ -48,6 +50,7 @@ export async function updateEvent(
   if (error) throw new Error(error.message)
   revalidatePath("/events")
   revalidatePath("/admin/events")
+  revalidatePath("/")
 }
 
 export async function deleteEvent(id: string) {
@@ -57,4 +60,5 @@ export async function deleteEvent(id: string) {
   if (error) throw new Error(error.message)
   revalidatePath("/events")
   revalidatePath("/admin/events")
+  revalidatePath("/")
 }

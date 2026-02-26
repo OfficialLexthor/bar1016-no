@@ -130,6 +130,7 @@ export default function AdminEventsPage() {
           start_time: form.start_time,
           end_time: form.end_time || undefined,
           event_type: form.event_type,
+          is_published: form.is_published,
         })
         toast.success(`"${form.title}" opprettet`)
       }
