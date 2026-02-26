@@ -1,12 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +17,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog"
 import {
@@ -42,6 +39,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatPrice } from "@/lib/utils/format"
+import { createClient } from "@/lib/supabase/client"
+import {
+  createMenuItem,
+  updateMenuItem,
+  deleteMenuItem,
+  createMenuCategory,
+  updateMenuCategory,
+  deleteMenuCategory,
+} from "@/lib/actions/menu"
 import type { MenuItem, MenuCategory, NeonColor } from "@/types"
 
 const NEON_COLORS: NeonColor[] = [
@@ -52,30 +58,6 @@ const NEON_COLORS: NeonColor[] = [
   "orange",
   "red",
   "purple",
-]
-
-// Placeholder data matching the bar menu
-const placeholderCategories: MenuCategory[] = [
-  { id: "1", name: "Cocktails", slug: "cocktails", sort_order: 1, neon_color: "cyan", is_active: true, created_at: "", updated_at: "" },
-  { id: "2", name: "Shots", slug: "shots", sort_order: 2, neon_color: "pink", is_active: true, created_at: "", updated_at: "" },
-  { id: "3", name: "Ol", slug: "ol", sort_order: 3, neon_color: "gold", is_active: true, created_at: "", updated_at: "" },
-  { id: "4", name: "Vin", slug: "vin", sort_order: 4, neon_color: "red", is_active: true, created_at: "", updated_at: "" },
-  { id: "5", name: "Alkoholfritt", slug: "alkoholfritt", sort_order: 5, neon_color: "green", is_active: true, created_at: "", updated_at: "" },
-]
-
-const placeholderItems: MenuItem[] = [
-  { id: "1", category_id: "1", name: "Espresso Martini", description: "Vodka, kaffe, kaffelikoer", price: 179, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-  { id: "2", category_id: "1", name: "Aperol Spritz", description: "Aperol, prosecco, sodavann", price: 169, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-  { id: "3", category_id: "1", name: "Mojito", description: "Rom, lime, mynte, sukker, sodavann", price: 169, is_active: true, sort_order: 3, created_at: "", updated_at: "" },
-  { id: "4", category_id: "1", name: "Margarita", description: "Tequila, cointreau, lime", price: 179, is_active: true, sort_order: 4, created_at: "", updated_at: "" },
-  { id: "5", category_id: "2", name: "Jagermeister", description: null, price: 99, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-  { id: "6", category_id: "2", name: "Fernet Branca", description: null, price: 99, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-  { id: "7", category_id: "3", name: "Hansa Fatol", description: "0.5L", price: 99, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-  { id: "8", category_id: "3", name: "Tuborg", description: "0.5L", price: 99, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-  { id: "9", category_id: "4", name: "Husets rod", description: "Glass", price: 129, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-  { id: "10", category_id: "4", name: "Husets hvit", description: "Glass", price: 129, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
-  { id: "11", category_id: "5", name: "Pepsi", description: "0.33L", price: 59, is_active: true, sort_order: 1, created_at: "", updated_at: "" },
-  { id: "12", category_id: "5", name: "Munkholm", description: "0.33L", price: 79, is_active: true, sort_order: 2, created_at: "", updated_at: "" },
 ]
 
 const emptyItem = {
@@ -95,10 +77,10 @@ const emptyCategory = {
 }
 
 export default function AdminMenuPage() {
-  // TODO: Replace with Supabase queries when connected
   const [items, setItems] = useState<MenuItem[]>([])
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [itemDialogOpen, setItemDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
@@ -111,11 +93,28 @@ export default function AdminMenuPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: "item" | "category"; id: string; name: string } | null>(null)
 
-  useEffect(() => {
-    setItems(placeholderItems)
-    setCategories(placeholderCategories)
+  const fetchData = useCallback(async () => {
+    const supabase = createClient()
+
+    const [catRes, itemRes] = await Promise.all([
+      supabase
+        .from("menu_categories")
+        .select("*")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("menu_items")
+        .select("*")
+        .order("sort_order", { ascending: true }),
+    ])
+
+    if (catRes.data) setCategories(catRes.data)
+    if (itemRes.data) setItems(itemRes.data)
     setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   function getCategoryName(categoryId: string) {
     return categories.find((c) => c.id === categoryId)?.name ?? "Ukjent"
@@ -140,47 +139,41 @@ export default function AdminMenuPage() {
     setItemDialogOpen(true)
   }
 
-  function handleSaveItem() {
+  async function handleSaveItem() {
     if (!itemForm.name || !itemForm.category_id || itemForm.price <= 0) {
-      toast.error("Fyll ut alle paakrevde felt")
+      toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
-    if (editingItem) {
-      // TODO: Update via Supabase
-      setItems((prev) =>
-        prev.map((i) =>
-          i.id === editingItem.id
-            ? {
-                ...i,
-                name: itemForm.name,
-                category_id: itemForm.category_id,
-                description: itemForm.description || null,
-                price: itemForm.price,
-                is_active: itemForm.is_active,
-              }
-            : i
-        )
-      )
-      toast.success(`"${itemForm.name}" oppdatert`)
-    } else {
-      // TODO: Insert via Supabase
-      const newItem: MenuItem = {
-        id: crypto.randomUUID(),
-        category_id: itemForm.category_id,
-        name: itemForm.name,
-        description: itemForm.description || null,
-        price: itemForm.price,
-        is_active: itemForm.is_active,
-        sort_order: items.length + 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+    setSaving(true)
+    try {
+      if (editingItem) {
+        await updateMenuItem(editingItem.id, {
+          name: itemForm.name,
+          category_id: itemForm.category_id,
+          description: itemForm.description || null,
+          price: itemForm.price,
+          is_active: itemForm.is_active,
+        })
+        toast.success(`"${itemForm.name}" oppdatert`)
+      } else {
+        await createMenuItem({
+          name: itemForm.name,
+          category_id: itemForm.category_id,
+          description: itemForm.description || undefined,
+          price: itemForm.price,
+          sort_order: items.length + 1,
+        })
+        toast.success(`"${itemForm.name}" lagt til`)
       }
-      setItems((prev) => [...prev, newItem])
-      toast.success(`"${itemForm.name}" lagt til`)
+      setItemDialogOpen(false)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
     }
-
-    setItemDialogOpen(false)
   }
 
   // Category handlers
@@ -202,46 +195,40 @@ export default function AdminMenuPage() {
     setCategoryDialogOpen(true)
   }
 
-  function handleSaveCategory() {
+  async function handleSaveCategory() {
     if (!categoryForm.name || !categoryForm.slug) {
-      toast.error("Fyll ut alle paakrevde felt")
+      toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
-    if (editingCategory) {
-      // TODO: Update via Supabase
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingCategory.id
-            ? {
-                ...c,
-                name: categoryForm.name,
-                slug: categoryForm.slug,
-                neon_color: categoryForm.neon_color,
-                sort_order: categoryForm.sort_order,
-                is_active: categoryForm.is_active,
-              }
-            : c
-        )
-      )
-      toast.success(`"${categoryForm.name}" oppdatert`)
-    } else {
-      // TODO: Insert via Supabase
-      const newCategory: MenuCategory = {
-        id: crypto.randomUUID(),
-        name: categoryForm.name,
-        slug: categoryForm.slug,
-        neon_color: categoryForm.neon_color,
-        sort_order: categoryForm.sort_order,
-        is_active: categoryForm.is_active,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+    setSaving(true)
+    try {
+      if (editingCategory) {
+        await updateMenuCategory(editingCategory.id, {
+          name: categoryForm.name,
+          slug: categoryForm.slug,
+          neon_color: categoryForm.neon_color,
+          sort_order: categoryForm.sort_order,
+          is_active: categoryForm.is_active,
+        })
+        toast.success(`"${categoryForm.name}" oppdatert`)
+      } else {
+        await createMenuCategory({
+          name: categoryForm.name,
+          slug: categoryForm.slug,
+          neon_color: categoryForm.neon_color,
+          sort_order: categoryForm.sort_order,
+        })
+        toast.success(`"${categoryForm.name}" lagt til`)
       }
-      setCategories((prev) => [...prev, newCategory])
-      toast.success(`"${categoryForm.name}" lagt til`)
+      setCategoryDialogOpen(false)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
     }
-
-    setCategoryDialogOpen(false)
   }
 
   // Delete handlers
@@ -250,21 +237,27 @@ export default function AdminMenuPage() {
     setDeleteDialogOpen(true)
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
 
-    if (deleteTarget.type === "item") {
-      // TODO: Delete via Supabase
-      setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id))
-      toast.success(`"${deleteTarget.name}" slettet`)
-    } else {
-      // TODO: Delete via Supabase
-      setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id))
-      toast.success(`"${deleteTarget.name}" slettet`)
+    setSaving(true)
+    try {
+      if (deleteTarget.type === "item") {
+        await deleteMenuItem(deleteTarget.id)
+        toast.success(`"${deleteTarget.name}" slettet`)
+      } else {
+        await deleteMenuCategory(deleteTarget.id)
+        toast.success(`"${deleteTarget.name}" slettet`)
+      }
+      setDeleteDialogOpen(false)
+      setDeleteTarget(null)
+      await fetchData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Noe gikk galt"
+      toast.error(message)
+    } finally {
+      setSaving(false)
     }
-
-    setDeleteDialogOpen(false)
-    setDeleteTarget(null)
   }
 
   if (loading) {
@@ -280,7 +273,7 @@ export default function AdminMenuPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-white">Meny</h1>
-        <p className="text-gray-400 mt-1">Administrer menyen til 1016 Bar</p>
+        <p className="text-gray-400 mt-1">Administrer menyen til 1016</p>
       </div>
 
       <Tabs defaultValue="items">
@@ -388,7 +381,7 @@ export default function AdminMenuPage() {
                     <TableHead className="text-gray-400">Navn</TableHead>
                     <TableHead className="text-gray-400">Slug</TableHead>
                     <TableHead className="text-gray-400">Farge</TableHead>
-                    <TableHead className="text-gray-400">Rekkefolge</TableHead>
+                    <TableHead className="text-gray-400">Rekkefølge</TableHead>
                     <TableHead className="text-gray-400">Aktiv</TableHead>
                     <TableHead className="text-gray-400 text-right">
                       Handlinger
@@ -411,7 +404,7 @@ export default function AdminMenuPage() {
                         <Badge
                           className="capitalize"
                           style={{
-                            backgroundColor: `var(--neon-${cat.neon_color}, #666)`,
+                            backgroundColor: `var(--color-neon-${cat.neon_color}, #666)`,
                             color: "#000",
                           }}
                         >
@@ -474,7 +467,7 @@ export default function AdminMenuPage() {
             <DialogDescription className="text-gray-400">
               {editingItem
                 ? "Oppdater detaljer for menyitemet."
-                : "Fyll ut skjemaet for aa legge til et nytt menyitem."}
+                : "Fyll ut skjemaet for å legge til et nytt menyitem."}
             </DialogDescription>
           </DialogHeader>
 
@@ -489,7 +482,7 @@ export default function AdminMenuPage() {
                 onChange={(e) =>
                   setItemForm((f) => ({ ...f, name: e.target.value }))
                 }
-                placeholder="F.eks. Espresso Martini"
+                placeholder="F.eks. Mojito"
                 className="bg-black/40 border-white/10 text-white"
               />
             </div>
@@ -527,7 +520,7 @@ export default function AdminMenuPage() {
                 onChange={(e) =>
                   setItemForm((f) => ({ ...f, description: e.target.value }))
                 }
-                placeholder="Kort beskrivelse av itemet"
+                placeholder="Ingredienser eller kort beskrivelse"
                 className="bg-black/40 border-white/10 text-white"
               />
             </div>
@@ -562,7 +555,7 @@ export default function AdminMenuPage() {
                 className="rounded border-white/20 bg-black/40"
               />
               <Label htmlFor="item-active" className="text-gray-300">
-                Aktiv (synlig paa menyen)
+                Aktiv (synlig på menyen)
               </Label>
             </div>
           </div>
@@ -573,8 +566,12 @@ export default function AdminMenuPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button onClick={handleSaveItem}>
-              {editingItem ? "Lagre endringer" : "Legg til"}
+            <Button onClick={handleSaveItem} disabled={saving}>
+              {saving
+                ? "Lagrer..."
+                : editingItem
+                  ? "Lagre endringer"
+                  : "Legg til"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -590,7 +587,7 @@ export default function AdminMenuPage() {
             <DialogDescription className="text-gray-400">
               {editingCategory
                 ? "Oppdater detaljer for kategorien."
-                : "Fyll ut skjemaet for aa opprette en ny kategori."}
+                : "Fyll ut skjemaet for å opprette en ny kategori."}
             </DialogDescription>
           </DialogHeader>
 
@@ -653,7 +650,7 @@ export default function AdminMenuPage() {
 
             <div>
               <Label htmlFor="cat-order" className="text-gray-300">
-                Rekkefolge
+                Rekkefølge
               </Label>
               <Input
                 id="cat-order"
@@ -694,8 +691,12 @@ export default function AdminMenuPage() {
                 Avbryt
               </Button>
             </DialogClose>
-            <Button onClick={handleSaveCategory}>
-              {editingCategory ? "Lagre endringer" : "Legg til"}
+            <Button onClick={handleSaveCategory} disabled={saving}>
+              {saving
+                ? "Lagrer..."
+                : editingCategory
+                  ? "Lagre endringer"
+                  : "Legg til"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -707,7 +708,7 @@ export default function AdminMenuPage() {
           <DialogHeader>
             <DialogTitle>Bekreft sletting</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Er du sikker paa at du vil slette &quot;{deleteTarget?.name}&quot;?
+              Er du sikker på at du vil slette &quot;{deleteTarget?.name}&quot;?
               Denne handlingen kan ikke angres.
             </DialogDescription>
           </DialogHeader>
@@ -720,8 +721,9 @@ export default function AdminMenuPage() {
             <Button
               variant="destructive"
               onClick={handleDelete}
+              disabled={saving}
             >
-              Slett
+              {saving ? "Sletter..." : "Slett"}
             </Button>
           </DialogFooter>
         </DialogContent>
