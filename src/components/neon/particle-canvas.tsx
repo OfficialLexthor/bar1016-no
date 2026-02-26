@@ -132,15 +132,19 @@ export function ParticleCanvas() {
           p.alphaDirection = 1
         }
 
-        // Draw particle with glow
+        // Glow (larger faded circle behind)
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2)
+        ctx.fillStyle = p.color
+        ctx.globalAlpha = p.alpha * 0.15
+        ctx.fill()
+
+        // Core particle
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
         ctx.fillStyle = p.color
         ctx.globalAlpha = p.alpha
-        ctx.shadowBlur = 8
-        ctx.shadowColor = p.color
         ctx.fill()
-        ctx.shadowBlur = 0
       }
 
       ctx.globalAlpha = 1

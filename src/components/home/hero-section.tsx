@@ -9,27 +9,11 @@ export function HeroSection() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.svg"
-          alt="1016 Bar"
-          width={200}
-          height={200}
+          alt="1016"
+          width={280}
+          height={210}
           className="mx-auto mb-6 drop-shadow-[0_0_40px_rgba(7,152,232,0.4)]"
         />
-        <h1 className="mb-2 flex flex-col items-center gap-2 font-bold tracking-tight sm:flex-row sm:justify-center sm:gap-6">
-          <span
-            className={cn(
-              "text-7xl text-neon-cyan neon-glow-cyan sm:text-8xl"
-            )}
-          >
-            1016
-          </span>
-          <span
-            className={cn(
-              "text-6xl text-neon-pink neon-glow-pink sm:text-7xl"
-            )}
-          >
-            BAR
-          </span>
-        </h1>
 
         <p className="mx-auto mt-6 max-w-md text-lg text-muted-foreground sm:text-xl">
           Premium Cocktails & Karaoke i Sarpsborg

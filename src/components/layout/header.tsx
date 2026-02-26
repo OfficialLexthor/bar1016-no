@@ -30,19 +30,15 @@ export function Header() {
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.svg"
-            alt="1016 Bar"
+            alt="1016"
             width={40}
             height={40}
-            className="h-10 w-10"
+            className="h-10 w-auto"
           />
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-neon-cyan neon-glow-cyan">1016</span>{" "}
-            <span className="text-neon-pink neon-glow-pink">BAR</span>
-          </span>
         </Link>
 
         {/* Desktop navigation */}

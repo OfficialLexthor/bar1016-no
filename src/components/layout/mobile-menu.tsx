@@ -35,12 +35,14 @@ export function MobileMenu() {
       >
         <SheetHeader>
           <SheetTitle className="text-left">
-            <span className="text-neon-cyan neon-glow-cyan font-bold text-xl">
-              1016
-            </span>{" "}
-            <span className="text-neon-pink neon-glow-pink font-bold text-xl">
-              BAR
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.svg"
+              alt="1016"
+              width={48}
+              height={36}
+              className="h-9 w-auto"
+            />
           </SheetTitle>
         </SheetHeader>
 

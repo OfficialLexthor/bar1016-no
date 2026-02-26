@@ -323,21 +323,15 @@ export default function TvMenuPage() {
           <div className="absolute top-0 right-0 flex flex-col items-end gap-2">
             <TvClock />
           </div>
-          <div className="flex justify-center items-center gap-4 mb-1">
+          <div className="flex justify-center items-center mb-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.svg"
-              alt="1016 Bar"
-              width={56}
-              height={56}
-              className="h-14 w-14 drop-shadow-[0_0_20px_rgba(7,152,232,0.6)]"
+              alt="1016"
+              width={80}
+              height={60}
+              className="h-16 w-auto drop-shadow-[0_0_20px_rgba(7,152,232,0.6)]"
             />
-            <h1 className="text-4xl font-bold text-white tracking-tight">
-              <span className="drop-shadow-[0_0_20px_rgba(7,152,232,0.8)]">1016</span>{" "}
-              <span className="text-neon-pink drop-shadow-[0_0_20px_rgba(217,60,239,0.8)]">
-                BAR
-              </span>
-            </h1>
           </div>
           <p className="text-xs text-gray-400 tracking-[0.3em] uppercase">
             Premium Drinks & Cocktails
