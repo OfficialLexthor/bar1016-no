@@ -34,7 +34,7 @@ const navItems = [
   { label: "Galleri", href: "/admin/galleri", icon: Image },
   { label: "Reservasjoner", href: "/admin/reservasjoner", icon: BookOpen },
   { label: "Kampanjer", href: "/admin/kampanjer", icon: Megaphone },
-  { label: "Apningstider", href: "/admin/apningstider", icon: Clock },
+  { label: "Åpningstider", href: "/admin/apningstider", icon: Clock },
   { label: "Meldinger", href: "/admin/meldinger", icon: MessageSquare },
 ] as const
 

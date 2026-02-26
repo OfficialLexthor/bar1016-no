@@ -4,7 +4,7 @@ import { SITE_NAME } from "@/lib/utils/constants"
 
 export const metadata: Metadata = {
   title: "Galleri",
-  description: `Bilder fra ${SITE_NAME}. Se atmosfaeren, cocktails og den gode stemningen hos oss.`,
+  description: `Bilder fra ${SITE_NAME}. Se atmosfæren, cocktails og den gode stemningen hos oss.`,
 }
 
 export default function GalleriPage() {
@@ -14,7 +14,7 @@ export default function GalleriPage() {
         Galleri
       </h1>
       <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-        Fa et innblikk i stemningen hos {SITE_NAME}.
+        Få et innblikk i stemningen hos {SITE_NAME}.
       </p>
 
       <div className="columns-2 md:columns-3 lg:columns-4 gap-4">

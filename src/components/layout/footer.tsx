@@ -113,10 +113,10 @@ export function Footer() {
 
             <div className="pt-2">
               <h4 className="text-sm font-semibold text-white/70 mb-2">
-                Apningstider
+                Åpningstider
               </h4>
               <p className="text-sm text-white/40">
-                Se oppdaterte apningstider pa var kontaktside.
+                Se oppdaterte åpningstider på vår kontaktside.
               </p>
             </div>
           </div>

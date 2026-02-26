@@ -162,7 +162,7 @@ export default function AdminReservationsPage() {
                 </p>
                 <p className="text-gray-500 text-sm">
                   {activeTab === "alle"
-                    ? "Det er ingen reservasjoner enna."
+                    ? "Det er ingen reservasjoner ennå."
                     : `Ingen ${statusConfig[activeTab as keyof typeof statusConfig]?.label.toLowerCase() ?? ""} reservasjoner.`}
                 </p>
               </CardContent>

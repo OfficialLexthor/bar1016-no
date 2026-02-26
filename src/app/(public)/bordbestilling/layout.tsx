@@ -4,7 +4,7 @@ import { SITE_NAME } from "@/lib/utils/constants"
 
 export const metadata: Metadata = {
   title: "Bordbestilling",
-  description: `Bestill bord eller karaoke hos ${SITE_NAME}. Vi har apent torsdag til lordag fra 18:00.`,
+  description: `Bestill bord eller karaoke hos ${SITE_NAME}. Vi har åpent torsdag til lørdag fra 18:00.`,
 }
 
 export default function BordbestillingLayout({

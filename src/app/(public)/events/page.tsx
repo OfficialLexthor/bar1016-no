@@ -4,7 +4,7 @@ import { SITE_NAME, SOCIAL_LINKS } from "@/lib/utils/constants"
 
 export const metadata: Metadata = {
   title: "Events",
-  description: `Kommende events og arrangementer hos ${SITE_NAME}. Sjekk ut hva som skjer og ikke ga glipp av noe!`,
+  description: `Kommende events og arrangementer hos ${SITE_NAME}. Sjekk ut hva som skjer og ikke gå glipp av noe!`,
 }
 
 export default function EventsPage() {
@@ -14,7 +14,7 @@ export default function EventsPage() {
         Events & Arrangementer
       </h1>
       <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-        Hos {SITE_NAME} skjer det alltid noe. Hold deg oppdatert pa kommende events!
+        Hos {SITE_NAME} skjer det alltid noe. Hold deg oppdatert på kommende events!
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -22,7 +22,7 @@ export default function EventsPage() {
         <div className="col-span-full text-center py-16">
           <div className="rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm p-12 neon-border-pink max-w-lg mx-auto">
             <p className="text-gray-300 text-lg mb-6">
-              Kommende events blir publisert her. Folg oss pa sosiale medier
+              Kommende events blir publisert her. Følg oss på sosiale medier
               for oppdateringer!
             </p>
             <div className="flex items-center justify-center gap-4">

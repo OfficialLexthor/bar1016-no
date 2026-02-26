@@ -38,7 +38,7 @@ export default function KontaktPage() {
         throw new Error(error.message || "Noe gikk galt")
       }
 
-      toast.success("Meldingen din er sendt! Vi tar kontakt sa snart vi kan.")
+      toast.success("Meldingen din er sendt! Vi tar kontakt så snart vi kan.")
       reset()
     } catch (error) {
       const message = error instanceof Error ? error.message : "Ukjent feil"
@@ -181,9 +181,9 @@ export default function KontaktPage() {
               <li className="flex items-start gap-4">
                 <Clock className="size-5 text-neon-green mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-medium text-white">Apningstider</p>
-                  <p className="text-gray-400">Torsdag - Lordag: 18:00 - 03:00</p>
-                  <p className="text-gray-400">Sondag - Onsdag: Stengt</p>
+                  <p className="font-medium text-white">Åpningstider</p>
+                  <p className="text-gray-400">Torsdag - Lørdag: 18:00 - 03:00</p>
+                  <p className="text-gray-400">Søndag - Onsdag: Stengt</p>
                 </div>
               </li>
             </ul>

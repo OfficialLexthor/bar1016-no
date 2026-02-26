@@ -61,7 +61,7 @@ export default function AdminOpeningHoursPage() {
     setSaving(true)
     // TODO: Save to Supabase
     await new Promise((resolve) => setTimeout(resolve, 500))
-    toast.success("Apningstider lagret")
+    toast.success("Åpningstider lagret")
     setSaving(false)
   }
 
@@ -77,15 +77,15 @@ export default function AdminOpeningHoursPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white">Apningstider</h1>
+        <h1 className="text-3xl font-bold text-white">Åpningstider</h1>
         <p className="text-gray-400 mt-1">
-          Rediger apningstidene for 1016 Bar
+          Rediger åpningstidene for 1016 Bar
         </p>
       </div>
 
       <Card className="bg-[#1a1a1a] border-white/10 max-w-2xl">
         <CardHeader>
-          <CardTitle className="text-white">Ukentlige apningstider</CardTitle>
+          <CardTitle className="text-white">Ukentlige åpningstider</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1">
           {hours.map((hour, index) => (
@@ -119,7 +119,7 @@ export default function AdminOpeningHoursPage() {
                       hour.is_open ? "text-green-400" : "text-gray-500"
                     )}
                   >
-                    {hour.is_open ? "Apent" : "Stengt"}
+                    {hour.is_open ? "Åpent" : "Stengt"}
                   </Label>
                 </div>
 
@@ -154,7 +154,7 @@ export default function AdminOpeningHoursPage() {
           <div className="pt-4">
             <Button onClick={handleSave} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              {saving ? "Lagrer..." : "Lagre apningstider"}
+              {saving ? "Lagrer..." : "Lagre åpningstider"}
             </Button>
           </div>
         </CardContent>

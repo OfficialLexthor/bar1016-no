@@ -154,9 +154,9 @@ export default function AdminDashboardPage() {
               <CardContent className="flex items-center gap-3 p-4">
                 <Clock className="h-5 w-5 text-neon-orange" />
                 <div>
-                  <p className="font-medium text-white">Apningstider</p>
+                  <p className="font-medium text-white">Åpningstider</p>
                   <p className="text-sm text-gray-400">
-                    Oppdater apningstider
+                    Oppdater åpningstider
                   </p>
                 </div>
               </CardContent>

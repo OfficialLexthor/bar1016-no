@@ -74,7 +74,7 @@ export default function AdminCampaignsPage() {
 
   function handleSave() {
     if (!form.title || !form.start_date || !form.end_date) {
-      toast.error("Fyll ut alle paakrevde felt")
+      toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
@@ -158,10 +158,10 @@ export default function AdminCampaignsPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Megaphone className="h-12 w-12 text-gray-600 mb-4" />
             <p className="text-gray-400 text-lg mb-2">
-              Ingen kampanjer enna
+              Ingen kampanjer ennå
             </p>
             <p className="text-gray-500 text-sm mb-4">
-              Opprett din forste kampanje for aa komme i gang.
+              Opprett din første kampanje for å komme i gang.
             </p>
             <Button onClick={openAdd} size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -248,7 +248,7 @@ export default function AdminCampaignsPage() {
             <DialogDescription className="text-gray-400">
               {editingCampaign
                 ? "Oppdater detaljer for kampanjen."
-                : "Fyll ut skjemaet for aa opprette en ny kampanje."}
+                : "Fyll ut skjemaet for å opprette en ny kampanje."}
             </DialogDescription>
           </DialogHeader>
 
@@ -349,7 +349,7 @@ export default function AdminCampaignsPage() {
           <DialogHeader>
             <DialogTitle>Bekreft sletting</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Er du sikker paa at du vil slette &quot;{deleteTarget?.title}
+              Er du sikker på at du vil slette &quot;{deleteTarget?.title}
               &quot;? Denne handlingen kan ikke angres.
             </DialogDescription>
           </DialogHeader>

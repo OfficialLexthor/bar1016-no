@@ -118,7 +118,7 @@ export default function AdminMessagesPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <MessageSquare className="h-12 w-12 text-gray-600 mb-4" />
             <p className="text-gray-400 text-lg mb-2">
-              Ingen meldinger enna
+              Ingen meldinger ennå
             </p>
             <p className="text-gray-500 text-sm">
               Meldinger fra kontaktskjemaet vil vises her.
@@ -270,7 +270,7 @@ export default function AdminMessagesPage() {
           <DialogHeader>
             <DialogTitle>Bekreft sletting</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Er du sikker paa at du vil slette denne meldingen fra{" "}
+              Er du sikker på at du vil slette denne meldingen fra{" "}
               {deleteTarget?.name}? Denne handlingen kan ikke angres.
             </DialogDescription>
           </DialogHeader>

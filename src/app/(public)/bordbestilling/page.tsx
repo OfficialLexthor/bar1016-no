@@ -67,7 +67,7 @@ export default function BordbestillingPage() {
       }
 
       toast.success(
-        "Reservasjonen er mottatt! Du vil fa en bekreftelse pa e-post."
+        "Reservasjonen er mottatt! Du vil få en bekreftelse på e-post."
       )
       reset()
     } catch (error) {
@@ -82,8 +82,8 @@ export default function BordbestillingPage() {
         Bordbestilling
       </h1>
       <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-        Reserver bord eller karaoke for a sikre deg plass. Vi bekrefter
-        reservasjonen pa e-post.
+        Reserver bord eller karaoke for å sikre deg plass. Vi bekrefter
+        reservasjonen på e-post.
       </p>
 
       <div className="max-w-2xl mx-auto">
@@ -228,7 +228,7 @@ export default function BordbestillingPage() {
               </Label>
               <Textarea
                 id="message"
-                placeholder="Spesielle onsker, allergier, feiring, etc."
+                placeholder="Spesielle ønsker, allergier, feiring, etc."
                 rows={4}
                 className={cn(INPUT_CLASSES, "min-h-[100px]")}
                 {...register("message")}
@@ -248,8 +248,8 @@ export default function BordbestillingPage() {
 
         <div className="mt-8 rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm p-6 text-center">
           <p className="text-gray-400 text-sm">
-            Vi har apent <span className="text-white font-medium">torsdag til lordag fra kl. 18:00</span>.
-            Reservasjoner bekreftes pa e-post innen 24 timer. For hastesaker,
+            Vi har åpent <span className="text-white font-medium">torsdag til lørdag fra kl. 18:00</span>.
+            Reservasjoner bekreftes på e-post innen 24 timer. For hastesaker,
             ring oss direkte.
           </p>
         </div>

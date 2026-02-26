@@ -81,14 +81,14 @@ export default function AdminGalleryPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <ImageIcon className="h-12 w-12 text-gray-600 mb-4" />
             <p className="text-gray-400 text-lg mb-2">
-              Ingen bilder i galleriet enna
+              Ingen bilder i galleriet ennå
             </p>
             <p className="text-gray-500 text-sm mb-4">
-              Last opp bilder for aa fylle galleriet.
+              Last opp bilder for å fylle galleriet.
             </p>
             <Button onClick={handleUpload} size="sm">
               <Upload className="h-4 w-4 mr-2" />
-              Last opp forste bilde
+              Last opp første bilde
             </Button>
           </CardContent>
         </Card>
@@ -131,7 +131,7 @@ export default function AdminGalleryPage() {
           <DialogHeader>
             <DialogTitle>Bekreft sletting</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Er du sikker paa at du vil slette dette bildet? Denne handlingen
+              Er du sikker på at du vil slette dette bildet? Denne handlingen
               kan ikke angres.
             </DialogDescription>
           </DialogHeader>

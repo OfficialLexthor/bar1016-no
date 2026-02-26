@@ -92,7 +92,7 @@ export default function AdminEventsPage() {
 
   function handleSave() {
     if (!form.title || !form.event_date || !form.start_time) {
-      toast.error("Fyll ut alle paakrevde felt")
+      toast.error("Fyll ut alle påkrevde felt")
       return
     }
 
@@ -181,9 +181,9 @@ export default function AdminEventsPage() {
         <Card className="bg-[#1a1a1a] border-white/10">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <CalendarDays className="h-12 w-12 text-gray-600 mb-4" />
-            <p className="text-gray-400 text-lg mb-2">Ingen events enna</p>
+            <p className="text-gray-400 text-lg mb-2">Ingen events ennå</p>
             <p className="text-gray-500 text-sm mb-4">
-              Opprett ditt forste event for aa komme i gang.
+              Opprett ditt første event for å komme i gang.
             </p>
             <Button onClick={openAdd} size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -275,7 +275,7 @@ export default function AdminEventsPage() {
             <DialogDescription className="text-gray-400">
               {editingEvent
                 ? "Oppdater detaljer for eventet."
-                : "Fyll ut skjemaet for aa opprette et nytt event."}
+                : "Fyll ut skjemaet for å opprette et nytt event."}
             </DialogDescription>
           </DialogHeader>
 
@@ -418,7 +418,7 @@ export default function AdminEventsPage() {
           <DialogHeader>
             <DialogTitle>Bekreft sletting</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Er du sikker paa at du vil slette &quot;{deleteTarget?.title}
+              Er du sikker på at du vil slette &quot;{deleteTarget?.title}
               &quot;? Denne handlingen kan ikke angres.
             </DialogDescription>
           </DialogHeader>
