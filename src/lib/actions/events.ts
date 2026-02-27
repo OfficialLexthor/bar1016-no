@@ -49,6 +49,7 @@ export async function updateEvent(
 
   if (error) throw new Error(error.message)
   revalidatePath("/events")
+  revalidatePath("/events/" + id)
   revalidatePath("/admin/events")
   revalidatePath("/")
 }
@@ -59,6 +60,7 @@ export async function deleteEvent(id: string) {
 
   if (error) throw new Error(error.message)
   revalidatePath("/events")
+  revalidatePath("/events/" + id)
   revalidatePath("/admin/events")
   revalidatePath("/")
 }

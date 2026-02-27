@@ -63,9 +63,10 @@ export default async function EventsPage() {
           <h2 className="text-2xl font-bold text-white mb-6">Kommende events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {upcomingEvents.map((event) => (
-              <div
+              <Link
                 key={event.id}
-                className="rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm p-6 neon-border-pink"
+                href={`/events/${event.id}`}
+                className="rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm p-6 neon-border-pink hover:border-neon-pink/40 transition-colors"
               >
                 <div className="flex items-center justify-between mb-3">
                   <Badge className={EVENT_TYPE_COLORS[event.event_type]}>
@@ -87,7 +88,7 @@ export default async function EventsPage() {
                   Kl. {formatTime(event.start_time)}
                   {event.end_time && ` - ${formatTime(event.end_time)}`}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </>
@@ -135,9 +136,10 @@ export default async function EventsPage() {
           <h2 className="text-2xl font-bold text-gray-500 mb-6">Tidligere events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
             {recentPastEvents.map((event) => (
-              <div
+              <Link
                 key={event.id}
-                className="rounded-lg border border-white/5 bg-black/20 p-6"
+                href={`/events/${event.id}`}
+                className="rounded-lg border border-white/5 bg-black/20 p-6 hover:border-white/20 transition-colors"
               >
                 <div className="flex items-center justify-between mb-3">
                   <Badge variant="outline" className="border-white/10 text-gray-500">
@@ -155,7 +157,7 @@ export default async function EventsPage() {
                     {event.description}
                   </p>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         </>
