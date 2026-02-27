@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { contactSchema } from "@/lib/validations/contact"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { escapeHtml } from "@/lib/utils/format"
 
 export async function POST(request: Request) {
   try {
@@ -42,12 +43,12 @@ export async function POST(request: Request) {
           subject: `Ny melding fra ${parsed.data.name}: ${parsed.data.subject}`,
           html: `
             <h2>Ny kontaktmelding fra bar1016.no</h2>
-            <p><strong>Navn:</strong> ${parsed.data.name}</p>
-            <p><strong>E-post:</strong> ${parsed.data.email}</p>
-            <p><strong>Telefon:</strong> ${parsed.data.phone ?? "Ikke oppgitt"}</p>
-            <p><strong>Emne:</strong> ${parsed.data.subject}</p>
+            <p><strong>Navn:</strong> ${escapeHtml(parsed.data.name)}</p>
+            <p><strong>E-post:</strong> ${escapeHtml(parsed.data.email)}</p>
+            <p><strong>Telefon:</strong> ${escapeHtml(parsed.data.phone ?? "Ikke oppgitt")}</p>
+            <p><strong>Emne:</strong> ${escapeHtml(parsed.data.subject)}</p>
             <p><strong>Melding:</strong></p>
-            <p>${parsed.data.message}</p>
+            <p>${escapeHtml(parsed.data.message)}</p>
           `,
         })
       }

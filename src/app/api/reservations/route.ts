@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { reservationSchema } from "@/lib/validations/reservation"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { escapeHtml } from "@/lib/utils/format"
 
 export async function POST(request: Request) {
   try {
@@ -53,8 +54,8 @@ export async function POST(request: Request) {
               <h2>Takk for din bestilling!</h2>
               <p>Vi har mottatt din ${typeLabel.toLowerCase()} for:</p>
               <ul>
-                <li><strong>Dato:</strong> ${parsed.data.date}</li>
-                <li><strong>Tid:</strong> ${parsed.data.time}</li>
+                <li><strong>Dato:</strong> ${escapeHtml(parsed.data.date)}</li>
+                <li><strong>Tid:</strong> ${escapeHtml(parsed.data.time)}</li>
                 <li><strong>Antall gjester:</strong> ${parsed.data.guests}</li>
                 <li><strong>Type:</strong> ${typeLabel}</li>
               </ul>
@@ -70,14 +71,14 @@ export async function POST(request: Request) {
             subject: `Ny ${typeLabel} - ${parsed.data.name} (${parsed.data.date})`,
             html: `
               <h2>Ny ${typeLabel}</h2>
-              <p><strong>Navn:</strong> ${parsed.data.name}</p>
-              <p><strong>E-post:</strong> ${parsed.data.email}</p>
-              <p><strong>Telefon:</strong> ${parsed.data.phone}</p>
-              <p><strong>Dato:</strong> ${parsed.data.date}</p>
-              <p><strong>Tid:</strong> ${parsed.data.time}</p>
+              <p><strong>Navn:</strong> ${escapeHtml(parsed.data.name)}</p>
+              <p><strong>E-post:</strong> ${escapeHtml(parsed.data.email)}</p>
+              <p><strong>Telefon:</strong> ${escapeHtml(parsed.data.phone)}</p>
+              <p><strong>Dato:</strong> ${escapeHtml(parsed.data.date)}</p>
+              <p><strong>Tid:</strong> ${escapeHtml(parsed.data.time)}</p>
               <p><strong>Gjester:</strong> ${parsed.data.guests}</p>
               <p><strong>Type:</strong> ${typeLabel}</p>
-              <p><strong>Melding:</strong> ${parsed.data.message ?? "Ingen"}</p>
+              <p><strong>Melding:</strong> ${escapeHtml(parsed.data.message ?? "Ingen")}</p>
             `,
           }),
         ])

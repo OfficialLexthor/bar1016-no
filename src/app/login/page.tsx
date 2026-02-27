@@ -14,7 +14,11 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") ?? "/admin"
+  const rawRedirect = searchParams.get("redirect")
+  const redirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/admin"
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()

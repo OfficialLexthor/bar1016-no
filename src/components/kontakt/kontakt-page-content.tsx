@@ -51,15 +51,39 @@ export function KontaktPageContent({ openingHours }: KontaktPageContentProps) {
     }
   }
 
-  // Build opening hours display lines
-  const openDays = openingHours.filter((h) => h.is_open)
-  const closedDays = openingHours.filter((h) => !h.is_open)
-
-  function formatDayRange(days: OpeningHours[]): string {
-    if (days.length === 0) return ""
-    if (days.length === 1) return days[0].day_name
-    return `${days[0].day_name} - ${days[days.length - 1].day_name}`
+  // Group consecutive days with matching hours
+  function getOpeningHoursGroups(hours: OpeningHours[]) {
+    const groups: { days: OpeningHours[]; label: string }[] = []
+    let i = 0
+    while (i < hours.length) {
+      const current = hours[i]
+      const key = current.is_open
+        ? `${current.open_time}-${current.close_time}`
+        : "closed"
+      const group = [current]
+      while (
+        i + 1 < hours.length &&
+        (hours[i + 1].is_open
+          ? `${hours[i + 1].open_time}-${hours[i + 1].close_time}`
+          : "closed") === key
+      ) {
+        i++
+        group.push(hours[i])
+      }
+      const dayRange =
+        group.length === 1
+          ? group[0].day_name
+          : `${group[0].day_name} - ${group[group.length - 1].day_name}`
+      const label = current.is_open
+        ? `${dayRange}: ${current.open_time?.slice(0, 5)} - ${current.close_time?.slice(0, 5)}`
+        : `${dayRange}: Stengt`
+      groups.push({ days: group, label })
+      i++
+    }
+    return groups
   }
+
+  const hoursGroups = getOpeningHoursGroups(openingHours)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
@@ -197,16 +221,11 @@ export function KontaktPageContent({ openingHours }: KontaktPageContentProps) {
                 <Clock className="size-5 text-neon-green mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-white">Åpningstider</p>
-                  {openDays.length > 0 && (
-                    <p className="text-gray-400">
-                      {formatDayRange(openDays)}: {openDays[0].open_time?.slice(0, 5)} - {openDays[0].close_time?.slice(0, 5)}
+                  {hoursGroups.map((group, idx) => (
+                    <p key={idx} className="text-gray-400">
+                      {group.label}
                     </p>
-                  )}
-                  {closedDays.length > 0 && (
-                    <p className="text-gray-400">
-                      {formatDayRange(closedDays)}: Stengt
-                    </p>
-                  )}
+                  ))}
                 </div>
               </li>
             </ul>
