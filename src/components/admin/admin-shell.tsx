@@ -22,6 +22,7 @@ import {
   Megaphone,
   Clock,
   MessageSquare,
+  Users,
   LogOut,
   Menu,
 } from "lucide-react"
@@ -33,6 +34,7 @@ const navItems = [
   { label: "Events", href: "/admin/events", icon: CalendarDays },
   { label: "Galleri", href: "/admin/galleri", icon: Image },
   { label: "Reservasjoner", href: "/admin/reservasjoner", icon: BookOpen },
+  { label: "Vaktplan", href: "/admin/vaktplan", icon: Users },
   { label: "Kampanjer", href: "/admin/kampanjer", icon: Megaphone },
   { label: "Åpningstider", href: "/admin/apningstider", icon: Clock },
   { label: "Meldinger", href: "/admin/meldinger", icon: MessageSquare },

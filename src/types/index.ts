@@ -105,4 +105,30 @@ export interface ContactMessage {
   created_at: string
 }
 
+export interface Employee {
+  id: string
+  name: string
+  neon_color: NeonColor
+  share_token: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Shift {
+  id: string
+  employee_id: string
+  shift_date: string
+  start_time: string
+  end_time: string
+  role: string | null
+  note: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ShiftWithEmployee extends Shift {
+  employees: Pick<Employee, "id" | "name" | "neon_color"> | null
+}
+
 export type NeonColor = "cyan" | "pink" | "gold" | "green" | "orange" | "red" | "purple"
