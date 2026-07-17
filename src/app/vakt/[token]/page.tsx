@@ -93,6 +93,19 @@ export default async function VaktPage({
   const allWeekShifts = (weekShifts ?? []) as ShiftWithEmployee[]
   const color = getNeonColor(employee.neon_color)
 
+  // Kollegaer på samme dager som mine neste vakter (kan ligge utenfor synlig uke)
+  const upcomingDates = [...new Set(myUpcoming.map((s) => s.shift_date))]
+  let colleagueShifts: ShiftWithEmployee[] = []
+  if (upcomingDates.length > 0) {
+    const { data } = await supabase
+      .from("shifts")
+      .select("*, employees(id, name, neon_color)")
+      .in("shift_date", upcomingDates)
+      .neq("employee_id", employee.id)
+      .order("start_time", { ascending: true })
+    colleagueShifts = (data ?? []) as ShiftWithEmployee[]
+  }
+
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="max-w-md mx-auto px-4 py-8 space-y-8">
@@ -135,6 +148,39 @@ export default async function VaktPage({
                   {shift.note && (
                     <p className="text-sm text-gray-500 mt-1">{shift.note}</p>
                   )}
+                  {(() => {
+                    const colleagues = colleagueShifts.filter(
+                      (c) => c.shift_date === shift.shift_date,
+                    )
+                    if (colleagues.length === 0) return null
+                    return (
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="text-xs text-gray-500 mb-1">Sammen med</p>
+                        <div className="space-y-0.5">
+                          {colleagues.map((c) => (
+                            <p key={c.id} className="text-sm">
+                              <span
+                                className={
+                                  getNeonColor(
+                                    c.employees?.neon_color ?? "cyan",
+                                  ).textClass
+                                }
+                              >
+                                {c.employees?.name ?? "Ukjent"}
+                              </span>{" "}
+                              <span className="text-gray-400">
+                                {formatTime(c.start_time)}–
+                                {formatTime(c.end_time)}
+                              </span>
+                              {c.role && (
+                                <span className="text-gray-500"> · {c.role}</span>
+                              )}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               ))}
             </div>
